@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (function () {
+        window.addEventListener(
+          'error',
+          function (event) {
+            var src = (event && event.filename) || '';
+            var msg = (event && event.message) || '';
+            var isExtSource =
+              src.indexOf('chrome-extension://') === 0 ||
+              src.indexOf('moz-extension://') === 0 ||
+              src.indexOf('safari-extension://') === 0;
+            if (isExtSource && msg.indexOf('Cannot set property fetch of #<Window>') !== -1) {
+              event.preventDefault();
+              event.stopImmediatePropagation();
+            }
+          },
+          true
+        );
+
         var host = (window.location.hostname || '').toLowerCase();
         var path = (window.location.pathname || '').toLowerCase();
         var params = new URLSearchParams(window.location.search || '');
@@ -39,19 +56,13 @@
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <!-- Google Fonts: Plus Jakarta Sans, Outfit, JetBrains Mono, Noto Sans Oriya -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Google Fonts: Noto Sans Oriya for English and Odia -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Oriya:wght@100..900&display=swap" rel="stylesheet">
     <!-- Checkers 2x2 SVG Favicon -->
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D9488'/%3E%3Crect x='4' y='4' width='12' height='12' rx='2' fill='%23FEF3C7'/%3E%3Crect x='16' y='4' width='12' height='12' rx='2' fill='%23115E59'/%3E%3Crect x='4' y='16' width='12' height='12' rx='2' fill='%23115E59'/%3E%3Crect x='16' y='16' width='12' height='12' rx='2' fill='%23FEF3C7'/%3E%3Ccircle cx='22' cy='10' r='4' fill='%23E11D48' stroke='%23FFF' stroke-width='1.2'/%3E%3Ccircle cx='10' cy='22' r='4' fill='%23F8FAFC' stroke='%23334155' stroke-width='1.2'/%3E%3C/svg%3E"
-    />
+    <link rel="icon" type="image/svg+xml" href="./logo.svg" />
+    <link rel="apple-touch-icon" href="./logo.svg" />
 
     <!-- Pure CSS for GitHub Pages Standalone Blog & Guide View -->
     <style id="pure-blog-styles">
@@ -103,7 +114,7 @@
         min-height: 100vh;
         background: var(--dc-bg-grad);
         color: var(--dc-text);
-        font-family: 'Plus Jakarta Sans', 'Noto Sans Oriya', system-ui, -apple-system, sans-serif;
+        font-family: 'Noto Sans Oriya', system-ui, -apple-system, sans-serif;
         line-height: 1.65;
         margin: 0;
         padding: 0 0 6.5rem 0;
@@ -185,7 +196,7 @@
       }
 
       .dc-brand-title {
-        font-family: 'Outfit', 'Noto Sans Oriya', sans-serif;
+        font-family: 'Noto Sans Oriya', system-ui, sans-serif;
         font-weight: 800;
         font-size: 1rem;
         white-space: nowrap;
@@ -247,7 +258,7 @@
       }
 
       .dc-hero-title {
-        font-family: 'Outfit', 'Noto Sans Oriya', sans-serif;
+        font-family: 'Noto Sans Oriya', system-ui, sans-serif;
         font-size: clamp(1.75rem, 3.6vw, 2.75rem);
         font-weight: 900;
         line-height: 1.15;
@@ -301,7 +312,7 @@
       }
 
       .dc-feature-box h3 {
-        font-family: 'Outfit', 'Noto Sans Oriya', sans-serif;
+        font-family: 'Noto Sans Oriya', system-ui, sans-serif;
         font-size: 1.05rem;
         margin: 0 0 0.4rem 0;
       }
@@ -345,16 +356,13 @@
               Home
             </a>
             <a href="?view=blog" class="dc-brand">
-              <div class="dc-logo-box" aria-hidden="true">
-                <svg viewBox="0 0 32 32" width="24" height="24">
-                  <rect x="2" y="2" width="14" height="14" rx="2" fill="#FEF3C7" />
-                  <rect x="16" y="2" width="14" height="14" rx="2" fill="#115E59" />
-                  <rect x="2" y="16" width="14" height="14" rx="2" fill="#115E59" />
-                  <rect x="16" y="16" width="14" height="14" rx="2" fill="#FEF3C7" />
-                  <circle cx="23" cy="9" r="4" fill="#E11D48" />
-                  <circle cx="9" cy="23" r="4" fill="#F8FAFC" />
-                </svg>
-              </div>
+              <img
+                src="./logo.svg"
+                alt="DesiCheckers"
+                width="36"
+                height="36"
+                style="border-radius: 10px; flex-shrink: 0"
+              />
               <span class="dc-brand-title" data-i18n="brandTitle">DesiCheckers</span>
             </a>
           </div>
@@ -400,7 +408,7 @@
           </section>
 
           <section class="dc-card">
-            <h2 style="font-family: 'Outfit', 'Noto Sans Oriya', sans-serif; margin-top: 0" data-i18n="featuresHeading">
+            <h2 style="font-family: 'Noto Sans Oriya', system-ui, sans-serif; margin-top: 0" data-i18n="featuresHeading">
               Game Modes &amp; Core Features
             </h2>
             <div class="dc-grid">

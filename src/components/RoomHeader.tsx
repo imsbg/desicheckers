@@ -155,16 +155,11 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
             }}
             className="flex items-center gap-2 sm:gap-2.5 min-w-0 text-left group focus:outline-none cursor-pointer"
           >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-teal-700 to-emerald-800 p-1 shadow-md shadow-teal-900/20 shrink-0 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <svg viewBox="0 0 32 32" className="w-full h-full" aria-hidden="true">
-                <rect x="2" y="2" width="14" height="14" rx="2.5" fill="#FEF3C7" />
-                <rect x="16" y="2" width="14" height="14" rx="2.5" fill="#115E59" />
-                <rect x="2" y="16" width="14" height="14" rx="2.5" fill="#115E59" />
-                <rect x="16" y="16" width="14" height="14" rx="2.5" fill="#FEF3C7" />
-                <circle cx="23" cy="9" r="4.5" fill="#E11D48" stroke="#FFF1F2" strokeWidth="1.4" />
-                <circle cx="9" cy="23" r="4.5" fill="#F8FAFC" stroke="#334155" strokeWidth="1.4" />
-              </svg>
-            </div>
+            <img
+              src="./logo.svg"
+              alt=""
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl shadow-md shadow-teal-900/20 shrink-0 group-hover:scale-105 transition-transform"
+            />
 
             <div className="min-w-0 overflow-hidden">
               <span className="block font-display text-sm sm:text-lg font-extrabold leading-tight truncate tracking-tight">
