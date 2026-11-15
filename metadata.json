@@ -1,0 +1,6 @@
+{
+  "name": "DesiCheckers - WebRTC Checkers",
+  "description": "Play Checkers (Draughts) online with friends via WebRTC (SBXXXX rooms), against Smart AI, or 2-player pass & play on one phone.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

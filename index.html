@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en" data-blog-theme="light" data-blog-lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var host = (window.location.hostname || '').toLowerCase();
+        var path = (window.location.pathname || '').toLowerCase();
+        var params = new URLSearchParams(window.location.search || '');
+        var viewParam = (params.get('view') || '').toLowerCase();
+        var isBlog = false;
+        if (viewParam === 'game') {
+          isBlog = false;
+        } else if (viewParam === 'blog') {
+          isBlog = true;
+        } else if (params.get('room') || params.get('autostart')) {
+          isBlog = false;
+        } else if (host.indexOf('github.io') !== -1 || path === '/checkers-blog') {
+          isBlog = true;
+        }
+        window.__IS_GITHUB_BLOG_VIEW__ = isBlog;
+      })();
+    </script>
+    <title>DesiCheckers - Online Match, Smart AI & 2-Player Checkers</title>
+    <meta name="author" content="Sandeep Biswal G" />
+    <meta
+      name="description"
+      content="DesiCheckers — Play Classic 8x8 Checkers online with friends, against Smart AI, or 2 Players on one phone. Casual, Smart, and Master Tournament modes with Odia language and AMOLED dark fullscreen."
+    />
+    <meta
+      name="keywords"
+      content="Checkers Game, Online Checkers, Play Checkers vs AI, 2 Player Checkers One Phone, Online Draughts, SBXXXX Room Code, DesiCheckers, DesiGames, Odia Checkers, Sandeep Biswal G"
+    />
+    <meta property="og:title" content="DesiCheckers - Online Match, Smart AI & 2-Player Checkers" />
+    <meta
+      property="og:description"
+      content="Play Classic 8x8 Checkers online with friends, vs Smart AI, or 2 Players on one phone."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Google Fonts: Plus Jakarta Sans, Outfit, JetBrains Mono, Noto Sans Oriya -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Checkers 2x2 SVG Favicon -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230D9488'/%3E%3Crect x='4' y='4' width='12' height='12' rx='2' fill='%23FEF3C7'/%3E%3Crect x='16' y='4' width='12' height='12' rx='2' fill='%23115E59'/%3E%3Crect x='4' y='16' width='12' height='12' rx='2' fill='%23115E59'/%3E%3Crect x='16' y='16' width='12' height='12' rx='2' fill='%23FEF3C7'/%3E%3Ccircle cx='22' cy='10' r='4' fill='%23E11D48' stroke='%23FFF' stroke-width='1.2'/%3E%3Ccircle cx='10' cy='22' r='4' fill='%23F8FAFC' stroke='%23334155' stroke-width='1.2'/%3E%3C/svg%3E"
+    />
+
+    <!-- Pure CSS for GitHub Pages Standalone Blog & Guide View -->
+    <style id="pure-blog-styles">
+      :root {
+        --dc-bg: #f8fafc;
+        --dc-bg-grad: linear-gradient(135deg, #f8fafc 0%, #f0fdfa 52%, #fffbeb 100%);
+        --dc-card: #ffffff;
+        --dc-card-alt: #f8fafc;
+        --dc-text: #0f172a;
+        --dc-muted: #475569;
+        --dc-border: #e2e8f0;
+        --dc-glass-bg: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.84) 0%,
+          rgba(240, 253, 250, 0.78) 100%
+        );
+        --dc-glass-border: rgba(255, 255, 255, 0.9);
+        --dc-glass-shadow: 0 14px 34px -8px rgba(13, 148, 136, 0.14),
+          0 4px 12px -2px rgba(15, 23, 42, 0.06);
+        --dc-teal: #0d9488;
+        --dc-teal-soft: #f0fdfa;
+        --dc-amber: #d97706;
+        --dc-amber-soft: #fffbeb;
+        --dc-rose: #e11d48;
+        --dc-shadow: 0 10px 30px -10px rgba(13, 148, 136, 0.1),
+          0 4px 12px -2px rgba(15, 23, 42, 0.04);
+      }
+
+      html[data-blog-theme='dark'] {
+        --dc-bg: #000000;
+        --dc-bg-grad: #000000;
+        --dc-card: #050505;
+        --dc-card-alt: #0a0a0a;
+        --dc-text: #f8fafc;
+        --dc-muted: #a1a1aa;
+        --dc-border: rgba(255, 255, 255, 0.14);
+        --dc-glass-bg: rgba(0, 0, 0, 0.92);
+        --dc-glass-border: rgba(255, 255, 255, 0.16);
+        --dc-glass-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.85);
+        --dc-teal: #2dd4bf;
+        --dc-teal-soft: rgba(20, 184, 166, 0.14);
+        --dc-amber: #fbbf24;
+        --dc-amber-soft: rgba(245, 158, 11, 0.14);
+        --dc-rose: #fb7185;
+        --dc-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.85);
+      }
+
+      #github-seo-blog-static {
+        min-height: 100vh;
+        background: var(--dc-bg-grad);
+        color: var(--dc-text);
+        font-family: 'Plus Jakarta Sans', 'Noto Sans Oriya', system-ui, -apple-system, sans-serif;
+        line-height: 1.65;
+        margin: 0;
+        padding: 0 0 6.5rem 0;
+        box-sizing: border-box;
+      }
+
+      #github-seo-blog-static *,
+      #github-seo-blog-static *::before,
+      #github-seo-blog-static *::after {
+        box-sizing: border-box;
+      }
+
+      .dc-blog-header {
+        position: sticky;
+        top: 0.75rem;
+        z-index: 40;
+        padding: 0 0.85rem;
+        margin-top: 0.5rem;
+      }
+
+      .dc-blog-header-inner {
+        max-width: 1060px;
+        margin: 0 auto;
+        padding: 0.65rem 1rem;
+        border-radius: 22px;
+        background: var(--dc-glass-bg);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--dc-glass-border);
+        box-shadow: var(--dc-glass-shadow);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+
+      .dc-header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+      }
+
+      .dc-home-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.42rem 0.75rem;
+        border-radius: 12px;
+        border: 1px solid var(--dc-border);
+        background: var(--dc-teal-soft);
+        color: var(--dc-teal);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .dc-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        text-decoration: none;
+        color: inherit;
+        min-width: 0;
+      }
+
+      .dc-logo-box {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #0f766e, #059669);
+        padding: 4px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dc-brand-title {
+        font-family: 'Outfit', 'Noto Sans Oriya', sans-serif;
+        font-weight: 800;
+        font-size: 1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .dc-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        flex-shrink: 0;
+      }
+
+      .dc-btn-outline {
+        border: 1px solid var(--dc-border);
+        background: var(--dc-card);
+        color: var(--dc-text);
+        padding: 0.42rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .dc-cta-sm {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.46rem 0.9rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #0d9488, #059669);
+        color: #ffffff;
+        font-size: 0.78rem;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
+      .dc-container {
+        max-width: 1060px;
+        margin: 1.5rem auto 0 auto;
+        padding: 0 1rem;
+      }
+
+      .dc-card {
+        background: var(--dc-card);
+        border: 1px solid var(--dc-border);
+        border-radius: 24px;
+        padding: 1.5rem;
+        box-shadow: var(--dc-shadow);
+        margin-bottom: 1.25rem;
+      }
+
+      @media (min-width: 640px) {
+        .dc-card {
+          padding: 2rem;
+        }
+      }
+
+      .dc-hero-title {
+        font-family: 'Outfit', 'Noto Sans Oriya', sans-serif;
+        font-size: clamp(1.75rem, 3.6vw, 2.75rem);
+        font-weight: 900;
+        line-height: 1.15;
+        margin: 0.5rem 0 0.75rem 0;
+      }
+
+      .dc-meta {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--dc-teal);
+      }
+
+      .dc-lead {
+        color: var(--dc-muted);
+        font-size: 1rem;
+        max-width: 68ch;
+        margin: 0 0 1.25rem 0;
+      }
+
+      .dc-cta-large {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.85rem 1.4rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #0d9488, #059669);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.95rem;
+        text-decoration: none;
+        box-shadow: 0 10px 22px -6px rgba(13, 148, 136, 0.45);
+      }
+
+      .dc-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      @media (min-width: 768px) {
+        .dc-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      .dc-feature-box {
+        background: var(--dc-card-alt);
+        border: 1px solid var(--dc-border);
+        border-radius: 18px;
+        padding: 1.15rem;
+      }
+
+      .dc-feature-box h3 {
+        font-family: 'Outfit', 'Noto Sans Oriya', sans-serif;
+        font-size: 1.05rem;
+        margin: 0 0 0.4rem 0;
+      }
+
+      .dc-feature-box p {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--dc-muted);
+      }
+
+      .dc-sponsor-sticky {
+        position: fixed;
+        bottom: 0.65rem;
+        left: 0.65rem;
+        right: 0.65rem;
+        max-width: 760px;
+        margin: 0 auto;
+        z-index: 40;
+        background: var(--dc-card);
+        border: 1px solid var(--dc-border);
+        border-radius: 18px;
+        padding: 0.65rem 0.95rem;
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ========================================================================
+         GITHUB PAGES FRIENDLY SEO BLOG / GUIDE VIEW
+         Active automatically on github.io or when ?view=blog is passed
+         ======================================================================== -->
+    <div id="github-seo-blog-static" style="display: none">
+      <header class="dc-blog-header">
+        <div class="dc-blog-header-inner">
+          <div class="dc-header-left">
+            <a href="https://imsbg.github.io/desigames/" class="dc-home-link" data-i18n="home">
+              Home
+            </a>
+            <a href="?view=blog" class="dc-brand">
+              <div class="dc-logo-box" aria-hidden="true">
+                <svg viewBox="0 0 32 32" width="24" height="24">
+                  <rect x="2" y="2" width="14" height="14" rx="2" fill="#FEF3C7" />
+                  <rect x="16" y="2" width="14" height="14" rx="2" fill="#115E59" />
+                  <rect x="2" y="16" width="14" height="14" rx="2" fill="#115E59" />
+                  <rect x="16" y="16" width="14" height="14" rx="2" fill="#FEF3C7" />
+                  <circle cx="23" cy="9" r="4" fill="#E11D48" />
+                  <circle cx="9" cy="23" r="4" fill="#F8FAFC" />
+                </svg>
+              </div>
+              <span class="dc-brand-title" data-i18n="brandTitle">DesiCheckers</span>
+            </a>
+          </div>
+          <div class="dc-header-actions">
+            <button
+              type="button"
+              id="blog-lang-btn"
+              class="dc-btn-outline"
+              onclick="window.__toggleBlogLang && window.__toggleBlogLang()"
+            >
+              ଓଡ଼ିଆ
+            </button>
+            <button
+              type="button"
+              id="blog-theme-btn"
+              class="dc-btn-outline"
+              onclick="window.__toggleBlogTheme && window.__toggleBlogTheme()"
+            >
+              Dark
+            </button>
+            <a href="?view=game" class="dc-cta-sm" data-i18n="playLive">Play Live</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="dc-container">
+        <article>
+          <section class="dc-card">
+            <div class="dc-meta" data-i18n="meta">
+              DesiGames · Classic 8×8 Draughts · Online Match
+            </div>
+            <h1 class="dc-hero-title" data-i18n="heroTitle">
+              DesiCheckers — Play Online Match, Smart AI &amp; 2 Players on One Phone
+            </h1>
+            <p class="dc-lead" data-i18n="heroLead">
+              Built for fast, mobile-first board play in English and Odia. Challenge Casual (∞),
+              Smart (50 moves), or Master Tournament (40 moves) modes against AI, pass &amp; play
+              with two players on one phone, or create an instant SBXXXX Online Match room.
+            </p>
+            <a href="?view=game" class="dc-cta-large" data-i18n="launchCta">
+              ▶ Launch Checkers Game
+            </a>
+          </section>
+
+          <section class="dc-card">
+            <h2 style="font-family: 'Outfit', 'Noto Sans Oriya', sans-serif; margin-top: 0" data-i18n="featuresHeading">
+              Game Modes &amp; Core Features
+            </h2>
+            <div class="dc-grid">
+              <div class="dc-feature-box">
+                <h3 data-i18n="f1Title">1. Play vs Smart AI</h3>
+                <p data-i18n="f1Desc">
+                  Three modes with clear move limits: Casual (∞ unlimited), Smart (50 moves), and
+                  Master Tournament (40 moves) powered by deep Minimax strategy.
+                </p>
+              </div>
+              <div class="dc-feature-box">
+                <h3 data-i18n="f2Title">2. 2 Players in One Phone</h3>
+                <p data-i18n="f2Desc">
+                  Offline Pass &amp; Play mode designed for two players sharing one screen, complete
+                  with optional Auto-Flip board orientation, last move indicator, and instant Undo.
+                </p>
+              </div>
+              <div class="dc-feature-box">
+                <h3 data-i18n="f3Title">3. Online Match Rooms (SBXXXX)</h3>
+                <p data-i18n="f3Desc">
+                  Choose Casual (∞), Smart (50 moves), or Master Tournament (40 moves) for online
+                  matches with shareable invite links, QR code joining, spectator mode, and reactions.
+                </p>
+              </div>
+              <div class="dc-feature-box">
+                <h3 data-i18n="f4Title">4. Odia Language &amp; AMOLED Fullscreen</h3>
+                <p data-i18n="f4Desc">
+                  Full pure Odia and English interface switching, last move source-to-target
+                  tracking, mandatory jump rules, and deep AMOLED black dark fullscreen mode.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <footer
+            class="dc-card"
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              justify-content: space-between;
+              gap: 1rem;
+            "
+          >
+            <div>
+              <div class="dc-meta" data-i18n="footerMeta">Quick Links · Sandeep Biswal G</div>
+              <div
+                style="font-weight: 800; font-size: 1.05rem; margin-top: 0.2rem"
+                data-i18n="footerTitle"
+              >
+                DesiCheckers &amp; DesiGames Collection
+              </div>
+              <div style="font-size: 0.84rem; color: var(--dc-muted); margin-top: 0.25rem">
+                <a
+                  href="https://imsbg.github.io/desigames/"
+                  style="color: var(--dc-teal); font-weight: 700"
+                  data-i18n="desiHome"
+                >
+                  DesiGames Home
+                </a>
+                ·
+                <a
+                  href="?view=game"
+                  style="color: var(--dc-teal); font-weight: 700"
+                  data-i18n="playNowLink"
+                >
+                  Play Checkers Now
+                </a>
+              </div>
+            </div>
+            <a href="?view=game" class="dc-cta-large" data-i18n="playShort">▶ Play Checkers</a>
+          </footer>
+        </article>
+      </main>
+
+      <!-- Sticky Sponsor Footer in Blog View -->
+      <aside class="dc-sponsor-sticky" aria-label="Sponsored Application">
+        <div style="min-width: 0">
+          <div style="font-weight: 800; font-size: 0.85rem" data-i18n="sponsorTitle">
+            Odia Bhasa App
+          </div>
+          <div style="font-size: 0.72rem; color: var(--dc-muted)" data-i18n="sponsorDesc">
+            Sponsored · Learn &amp; Read Odia on Android
+          </div>
+        </div>
+        <a
+          href="https://play.google.com/store/apps/details?id=in.sandeep.odiabhasa"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="dc-cta-sm"
+          data-i18n="downloadNow"
+        >
+          Download Now
+        </a>
+      </aside>
+    </div>
+
+    <!-- ========================================================================
+         INTERACTIVE REACT CHECKERS GAME ROOT
+         ======================================================================== -->
+    <div id="root" style="display: none"></div>
+    <script>
+      (function () {
+        var staticBlogEl = document.getElementById('github-seo-blog-static');
+        var gameRootEl = document.getElementById('root');
+        if (!window.__IS_GITHUB_BLOG_VIEW__) {
+          if (staticBlogEl) staticBlogEl.style.display = 'none';
+          if (gameRootEl) gameRootEl.style.display = 'block';
+        } else {
+          if (staticBlogEl) staticBlogEl.style.display = 'block';
+          if (gameRootEl) gameRootEl.style.display = 'none';
+        }
+
+        var blogCopy = {
+          en: {
+            home: 'Home',
+            brandTitle: 'DesiCheckers',
+            playLive: 'Play Live',
+            meta: 'DesiGames · Classic 8×8 Draughts · Online Match',
+            heroTitle: 'DesiCheckers — Play Online Match, Smart AI & 2 Players on One Phone',
+            heroLead:
+              'Built for fast, mobile-first board play in English and Odia. Challenge Casual (∞), Smart (50 moves), or Master Tournament (40 moves) modes against AI, pass & play with two players on one phone, or create an instant SBXXXX Online Match room.',
+            launchCta: '▶ Launch Checkers Game',
+            featuresHeading: 'Game Modes & Core Features',
+            f1Title: '1. Play vs Smart AI',
+            f1Desc:
+              'Three modes with clear move limits: Casual (∞ unlimited), Smart (50 moves), and Master Tournament (40 moves) powered by deep Minimax strategy.',
+            f2Title: '2. 2 Players in One Phone',
+            f2Desc:
+              'Offline Pass & Play mode designed for two players sharing one screen, complete with optional Auto-Flip board orientation, last move indicator, and instant Undo.',
+            f3Title: '3. Online Match Rooms (SBXXXX)',
+            f3Desc:
+              'Choose Casual (∞), Smart (50 moves), or Master Tournament (40 moves) for online matches with shareable invite links, QR code joining, spectator mode, and reactions.',
+            f4Title: '4. Odia Language & AMOLED Fullscreen',
+            f4Desc:
+              'Full pure Odia and English interface switching, last move source-to-target tracking, mandatory jump rules, and deep AMOLED black dark fullscreen mode.',
+            footerMeta: 'Quick Links · Sandeep Biswal G',
+            footerTitle: 'DesiCheckers & DesiGames Collection',
+            desiHome: 'DesiGames Home',
+            playNowLink: 'Play Checkers Now',
+            playShort: '▶ Play Checkers',
+            sponsorTitle: 'Odia Bhasa App',
+            sponsorDesc: 'Sponsored · Learn & Read Odia on Android',
+            downloadNow: 'Download Now',
+            langBtn: 'ଓଡ଼ିଆ',
+            darkBtn: 'Dark',
+            lightBtn: 'Light',
+          },
+          or: {
+            home: 'ହୋମ୍',
+            brandTitle: 'ଦେଶୀ ଚେକର୍ସ',
+            playLive: 'ଖେଳନ୍ତୁ',
+            meta: 'ଦେଶୀଗେମ୍ସ · କ୍ଲାସିକ୍ ୮×୮ ଚେକର୍ସ · ଅନଲାଇନ୍ ମ୍ୟାଚ୍',
+            heroTitle: 'ଦେଶୀ ଚେକର୍ସ — ଅନଲାଇନ୍ ମ୍ୟାଚ୍, ଏଆଇ ଏବଂ ଗୋଟିଏ ଫୋନ୍‌ରେ ୨ ଖେଳାଳି',
+            heroLead:
+              'ଇଂରାଜୀ ଏବଂ ଓଡ଼ିଆରେ ଦ୍ରୁତ ମୋବାଇଲ୍ ବୋର୍ଡ ଖେଳ। ଏଆଇ ସହିତ ସାଧାରଣ, ଚତୁର କିମ୍ବା ମାଷ୍ଟର ଟୁର୍ଣ୍ଣାମେଣ୍ଟ ମୋଡ୍‌ରେ ଖେଳନ୍ତୁ, ଗୋଟିଏ ଫୋନ୍‌ରେ ୨ ଜଣ ଖେଳନ୍ତୁ କିମ୍ବା ଅନଲାଇନ୍ ମ୍ୟାଚ୍ ରୁମ୍ ତିଆରି କରନ୍ତୁ।',
+            launchCta: '▶ ଚେକର୍ସ ଖେଳ ଆରମ୍ଭ କରନ୍ତୁ',
+            featuresHeading: 'ଖେଳ ମୋଡ୍ ଏବଂ ମୁଖ୍ୟ ବୈଶିଷ୍ଟ୍ୟ',
+            f1Title: '୧. ଏଆଇ ବିପକ୍ଷରେ ଖେଳ',
+            f1Desc:
+              'ସ୍ପଷ୍ଟ ଚାଲ୍ ସୀମା ସହିତ ତିନୋଟି ସ୍ତର: ସାଧାରଣ — ∞ ଅସୀମିତ ଚାଲ୍, ଚତୁର — ୫୦ ଚାଲ୍ ଏବଂ ମାଷ୍ଟର ଟୁର୍ଣ୍ଣାମେଣ୍ଟ — ୪୦ ଚାଲ୍।',
+            f2Title: '୨. ଗୋଟିଏ ଫୋନ୍‌ରେ ୨ ଖେଳାଳି',
+            f2Desc:
+              'ଗୋଟିଏ ସ୍କ୍ରିନ୍‌ରେ ଦୁଇଜଣ ସାଙ୍ଗ ଖେଳିବା ପାଇଁ ଅଫଲାଇନ୍ ମୋଡ୍, ସ୍ୱୟଂ ବୋର୍ଡ ଓଲଟା, ଶେଷ ଚାଲ୍ ସୂଚନା ଏବଂ ଫେରାନ୍ତୁ ସୁବିଧା।',
+            f3Title: '୩. ଅନଲାଇନ୍ ମ୍ୟାଚ୍ ରୁମ୍',
+            f3Desc:
+              'ସାଧାରଣ, ଚତୁର କିମ୍ବା ମାଷ୍ଟର ଟୁର୍ଣ୍ଣାମେଣ୍ଟ ମୋଡ୍ ବାଛନ୍ତୁ ଏବଂ ନିମନ୍ତ୍ରଣ ଲିଙ୍କ୍, କ୍ୟୁଆର୍ କୋଡ୍ ଓ ଦର୍ଶକ ମୋଡ୍ ସହିତ ଖେଳନ୍ତୁ।',
+            f4Title: '୪. ଓଡ଼ିଆ ଭାଷା ଏବଂ ଫୁଲ୍ ସ୍କ୍ରିନ୍ ଡାର୍କ ମୋଡ୍',
+            f4Desc:
+              'ସମ୍ପୂର୍ଣ୍ଣ ଓଡ଼ିଆ ଭାଷା ସମର୍ଥନ, କେଉଁ ଘରୁ କେଉଁ ଘରକୁ ଶେଷ ଚାଲ୍ ହେଲା ତାହାର ସୂଚନା ଏବଂ ଗାଢ଼ କଳା ଫୁଲ୍ ସ୍କ୍ରିନ୍ ମୋଡ୍।',
+            footerMeta: 'ଶୀଘ୍ର ଲିଙ୍କ୍ · ସନ୍ଦୀପ ବିଶ୍ୱାଳ',
+            footerTitle: 'ଦେଶୀ ଚେକର୍ସ ଏବଂ ଦେଶୀଗେମ୍ସ',
+            desiHome: 'ଦେଶୀଗେମ୍ସ ହୋମ୍',
+            playNowLink: 'ଏବେ ଚେକର୍ସ ଖେଳନ୍ତୁ',
+            playShort: '▶ ଖେଳନ୍ତୁ',
+            sponsorTitle: 'ଓଡ଼ିଆ ଭାଷା ଆପ୍',
+            sponsorDesc: 'ପ୍ରାୟୋଜିତ · ସହଜରେ ଓଡ଼ିଆ ଶିଖନ୍ତୁ ଓ ପଢ଼ନ୍ତୁ',
+            downloadNow: 'ଡାଉନଲୋଡ୍',
+            langBtn: 'English',
+            darkBtn: 'ଡାର୍କ',
+            lightBtn: 'ଲାଇଟ୍',
+          },
+        };
+
+        function applyBlogLang(lang) {
+          var dict = blogCopy[lang] || blogCopy.en;
+          document.documentElement.setAttribute('data-blog-lang', lang);
+          document.documentElement.lang = lang === 'or' ? 'or' : 'en';
+          var nodes = document.querySelectorAll('#github-seo-blog-static [data-i18n]');
+          for (var i = 0; i < nodes.length; i++) {
+            var key = nodes[i].getAttribute('data-i18n');
+            if (dict[key]) nodes[i].textContent = dict[key];
+          }
+          var langBtn = document.getElementById('blog-lang-btn');
+          if (langBtn) langBtn.textContent = dict.langBtn;
+          var themeBtn = document.getElementById('blog-theme-btn');
+          var isDark = document.documentElement.getAttribute('data-blog-theme') === 'dark';
+          if (themeBtn) themeBtn.textContent = isDark ? dict.lightBtn : dict.darkBtn;
+        }
+
+        window.__toggleBlogLang = function () {
+          var curr = document.documentElement.getAttribute('data-blog-lang') || 'en';
+          applyBlogLang(curr === 'en' ? 'or' : 'en');
+        };
+
+        window.__toggleBlogTheme = function () {
+          var html = document.documentElement;
+          var next = html.getAttribute('data-blog-theme') === 'dark' ? 'light' : 'dark';
+          html.setAttribute('data-blog-theme', next);
+          var lang = html.getAttribute('data-blog-lang') || 'en';
+          var dict = blogCopy[lang] || blogCopy.en;
+          var btn = document.getElementById('blog-theme-btn');
+          if (btn) btn.textContent = next === 'dark' ? dict.lightBtn : dict.darkBtn;
+        };
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
