@@ -58,10 +58,10 @@ export const HowToPlayModal: React.FC<HowToPlayModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="how-to-play-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
     >
       <div
-        className={`w-full max-w-lg rounded-3xl border shadow-2xl p-6 space-y-4 max-h-[85vh] overflow-y-auto animate-pop-in ${modalCard}`}
+        className={`w-full max-w-lg rounded-3xl border shadow-xl p-6 space-y-4 max-h-[85vh] overflow-y-auto animate-pop-in ${modalCard}`}
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
@@ -191,9 +191,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
     >
-      <div className={`w-full max-w-md rounded-3xl border shadow-2xl p-6 space-y-4 animate-pop-in ${modalCard}`}>
+      <div className={`w-full max-w-md rounded-3xl border shadow-xl p-6 space-y-4 animate-pop-in ${modalCard}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center">
@@ -389,10 +389,10 @@ export const QrModal: React.FC<QrModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="qr-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
     >
       <div
-        className={`w-full max-w-sm rounded-3xl border shadow-2xl p-6 text-center space-y-4 animate-pop-in ${
+        className={`w-full max-w-sm rounded-3xl border shadow-xl p-6 text-center space-y-4 animate-pop-in ${
           amoledDark
             ? 'bg-black border-white/15 text-slate-100'
             : isDarkMode
@@ -510,10 +510,10 @@ export const ShareFriendModal: React.FC<ShareFriendModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="share-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
     >
       <div
-        className={`w-full max-w-md rounded-3xl border shadow-2xl p-6 space-y-4 animate-pop-in ${
+        className={`w-full max-w-md rounded-3xl border shadow-xl p-6 space-y-4 animate-pop-in ${
           amoledDark
             ? 'bg-black border-white/15 text-slate-100'
             : isDarkMode
@@ -610,10 +610,10 @@ export const JoinInviteModal: React.FC<JoinInviteModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="join-invite-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
     >
       <div
-        className={`w-full max-w-sm rounded-3xl border shadow-2xl p-6 space-y-4 animate-pop-in ${
+        className={`w-full max-w-sm rounded-3xl border shadow-xl p-6 space-y-4 animate-pop-in ${
           amoledDark
             ? 'bg-black border-white/15 text-slate-100'
             : isDarkMode

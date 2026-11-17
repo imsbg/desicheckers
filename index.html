@@ -140,15 +140,21 @@
         margin: 0 auto;
         padding: 0.65rem 1rem;
         border-radius: 22px;
-        background: var(--dc-glass-bg);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        background: var(--dc-card);
         border: 1px solid var(--dc-glass-border);
         box-shadow: var(--dc-glass-shadow);
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 0.75rem;
+      }
+
+      @media (min-width: 768px) {
+        .dc-blog-header-inner {
+          background: var(--dc-glass-bg);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+        }
       }
 
       .dc-header-left {

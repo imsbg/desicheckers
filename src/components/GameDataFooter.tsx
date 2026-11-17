@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Clock, History, Trophy, Shield, Crown, Swords } from 'lucide-react';
 import {
   Board,
@@ -9,10 +9,82 @@ import {
 } from '../game/checkers';
 import { Translations } from '../utils/translations';
 
+interface LiveMatchClocksProps {
+  matchStartedAt: number;
+  roundStartedAt: number;
+  isRoundPlaying: boolean;
+  tileSurface: string;
+  matchTimeLabel: string;
+  roundTimeLabel: string;
+}
+
+const LiveMatchClocks: React.FC<LiveMatchClocksProps> = React.memo(
+  ({
+    matchStartedAt,
+    roundStartedAt,
+    isRoundPlaying,
+    tileSurface,
+    matchTimeLabel,
+    roundTimeLabel,
+  }) => {
+    const [now, setNow] = useState<number>(() => Date.now());
+    const [frozenRoundSecs, setFrozenRoundSecs] = useState<number>(0);
+
+    useEffect(() => {
+      setNow(Date.now());
+    }, [matchStartedAt, roundStartedAt]);
+
+    useEffect(() => {
+      if (!isRoundPlaying) {
+        setFrozenRoundSecs(Math.max(0, Math.floor((Date.now() - roundStartedAt) / 1000)));
+      }
+    }, [isRoundPlaying, roundStartedAt]);
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setNow(Date.now());
+      }, 1000);
+      return () => clearInterval(interval);
+    }, []);
+
+    const matchSeconds = Math.max(0, Math.floor((now - matchStartedAt) / 1000));
+    const roundSeconds = isRoundPlaying
+      ? Math.max(0, Math.floor((now - roundStartedAt) / 1000))
+      : frozenRoundSecs;
+
+    return (
+      <>
+        <div className={`p-2.5 rounded-2xl border ${tileSurface}`}>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+            <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+            <span>{matchTimeLabel}</span>
+          </div>
+          <div className="mt-0.5 text-sm sm:text-base font-mono font-extrabold tabular-nums">
+            {formatDuration(matchSeconds)}
+          </div>
+        </div>
+
+        <div className={`p-2.5 rounded-2xl border ${tileSurface}`}>
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+            <Swords className="w-3.5 h-3.5 text-amber-500" />
+            <span>{roundTimeLabel}</span>
+          </div>
+          <div className="mt-0.5 text-sm sm:text-base font-mono font-extrabold tabular-nums">
+            {formatDuration(roundSeconds)}
+          </div>
+        </div>
+      </>
+    );
+  }
+);
+
+LiveMatchClocks.displayName = 'LiveMatchClocks';
+
 interface GameDataFooterProps {
   board: Board;
-  totalElapsedSeconds: number;
-  currentRoundSeconds: number;
+  matchStartedAt: number;
+  roundStartedAt: number;
+  isRoundPlaying: boolean;
   currentRoundMoves: MoveRecord[];
   roundHistory: RoundRecord[];
   playerNames: { red: string; ivory: string };
@@ -21,72 +93,63 @@ interface GameDataFooterProps {
   t: Translations;
 }
 
-export const GameDataFooter: React.FC<GameDataFooterProps> = ({
-  board,
-  totalElapsedSeconds,
-  currentRoundSeconds,
-  currentRoundMoves,
-  roundHistory,
-  playerNames,
-  isDarkMode,
-  isFullscreen = false,
-  t,
-}) => {
-  const counts = countPieces(board);
-  const redCapturedByIvory = 12 - counts.red;
-  const ivoryCapturedByRed = 12 - counts.ivory;
-  const amoledDark = isDarkMode && isFullscreen;
+export const GameDataFooter: React.FC<GameDataFooterProps> = React.memo(
+  ({
+    board,
+    matchStartedAt,
+    roundStartedAt,
+    isRoundPlaying,
+    currentRoundMoves,
+    roundHistory,
+    playerNames,
+    isDarkMode,
+    isFullscreen = false,
+    t,
+  }) => {
+    const counts = countPieces(board);
+    const redCapturedByIvory = 12 - counts.red;
+    const ivoryCapturedByRed = 12 - counts.ivory;
+    const amoledDark = isDarkMode && isFullscreen;
 
-  const cardSurface = amoledDark
-    ? 'bg-black border-white/15 text-slate-100'
-    : isDarkMode
-    ? 'bg-slate-900/75 border-slate-800 text-slate-100'
-    : 'bg-white/90 border-slate-200/90 text-slate-900 shadow-lg shadow-teal-900/5';
+    const cardSurface = amoledDark
+      ? 'bg-black border-white/15 text-slate-100'
+      : isDarkMode
+      ? 'bg-slate-900/75 border-slate-800 text-slate-100'
+      : 'bg-white/90 border-slate-200/90 text-slate-900 shadow-lg shadow-teal-900/5';
 
-  const tileSurface = amoledDark
-    ? 'bg-neutral-950 border-white/10'
-    : isDarkMode
-    ? 'bg-slate-800/60 border-slate-700/70'
-    : 'bg-slate-50 border-slate-200/80';
+    const tileSurface = amoledDark
+      ? 'bg-neutral-950 border-white/10'
+      : isDarkMode
+      ? 'bg-slate-800/60 border-slate-700/70'
+      : 'bg-slate-50 border-slate-200/80';
 
-  const innerSurface = amoledDark
-    ? 'bg-black border-white/10'
-    : isDarkMode
-    ? 'bg-slate-950/50 border-slate-800'
-    : 'bg-slate-50/80 border-slate-200/80';
+    const innerSurface = amoledDark
+      ? 'bg-black border-white/10'
+      : isDarkMode
+      ? 'bg-slate-950/50 border-slate-800'
+      : 'bg-slate-50/80 border-slate-200/80';
 
-  const itemSurface = amoledDark
-    ? 'bg-neutral-950 border border-white/10'
-    : isDarkMode
-    ? 'bg-slate-900/80'
-    : 'bg-white border border-slate-200/70';
+    const itemSurface = amoledDark
+      ? 'bg-neutral-950 border border-white/10'
+      : isDarkMode
+      ? 'bg-slate-900/80'
+      : 'bg-white border border-slate-200/70';
 
-  return (
-    <section
-      aria-label="Match Analytics and Move Log"
-      className={`w-full rounded-3xl border p-3.5 sm:p-4 space-y-3 transition-all ${cardSurface}`}
-    >
-      {/* Top 4 Stat Tiles */}
-      <div className="grid grid-cols-2 gap-2">
-        <div className={`p-2.5 rounded-2xl border ${tileSurface}`}>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-            <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-            <span>{t.matchTime}</span>
-          </div>
-          <div className="mt-0.5 text-sm sm:text-base font-mono font-extrabold tabular-nums">
-            {formatDuration(totalElapsedSeconds)}
-          </div>
-        </div>
-
-        <div className={`p-2.5 rounded-2xl border ${tileSurface}`}>
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-            <Swords className="w-3.5 h-3.5 text-amber-500" />
-            <span>{t.roundTime}</span>
-          </div>
-          <div className="mt-0.5 text-sm sm:text-base font-mono font-extrabold tabular-nums">
-            {formatDuration(currentRoundSeconds)}
-          </div>
-        </div>
+    return (
+      <section
+        aria-label="Match Analytics and Move Log"
+        className={`w-full rounded-3xl border p-3.5 sm:p-4 space-y-3 ${cardSurface}`}
+      >
+        {/* Top 4 Stat Tiles */}
+        <div className="grid grid-cols-2 gap-2">
+          <LiveMatchClocks
+            matchStartedAt={matchStartedAt}
+            roundStartedAt={roundStartedAt}
+            isRoundPlaying={isRoundPlaying}
+            tileSurface={tileSurface}
+            matchTimeLabel={t.matchTime}
+            roundTimeLabel={t.roundTime}
+          />
 
         <div className={`p-2.5 rounded-2xl border ${tileSurface}`}>
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-rose-600 dark:text-rose-400 truncate">
@@ -215,4 +278,6 @@ export const GameDataFooter: React.FC<GameDataFooterProps> = ({
       )}
     </section>
   );
-};
+});
+
+GameDataFooter.displayName = 'GameDataFooter';

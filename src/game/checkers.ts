@@ -83,7 +83,17 @@ export function createInitialBoard(): Board {
 }
 
 export function cloneBoard(board: Board): Board {
-  return board.map((row) => row.map((cell) => (cell ? { ...cell } : null)));
+  const copy: Board = new Array(BOARD_SIZE);
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    const srcRow = board[r];
+    const dstRow: (Piece | null)[] = new Array(BOARD_SIZE);
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const cell = srcRow[c];
+      dstRow[c] = cell ? { color: cell.color, isKing: cell.isKing } : null;
+    }
+    copy[r] = dstRow;
+  }
+  return copy;
 }
 
 export function isInsideBoard(row: number, col: number): boolean {
@@ -377,24 +387,60 @@ interface FullTurnSequence {
   resultingBoard: Board;
 }
 
+function hasAnyLegalMove(board: Board, color: PieceColor): boolean {
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const piece = board[r][c];
+      if (!piece || piece.color !== color) continue;
+      const rowDeltas = piece.isKing ? [-1, 1] : [getForwardRowDelta(piece.color)];
+      for (const dr of rowDeltas) {
+        for (const dc of [-1, 1]) {
+          const nr = r + dr;
+          const nc = c + dc;
+          if (!isInsideBoard(nr, nc)) continue;
+          const adj = board[nr][nc];
+          if (adj === null) return true;
+          if (adj.color !== color) {
+            const jr = r + dr * 2;
+            const jc = c + dc * 2;
+            if (isInsideBoard(jr, jc) && board[jr][jc] === null) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
 function getTurnSequencesForColor(
   board: Board,
   color: PieceColor,
   forcedCapture: boolean = true
 ): FullTurnSequence[] {
   const initialMoves = getLegalMoves(board, color, null, forcedCapture);
-  const sequences: FullTurnSequence[] = [];
+  const captureSeqs: FullTurnSequence[] = [];
+  const quietSeqs: FullTurnSequence[] = [];
 
   for (const move of initialMoves) {
     const res = applyCheckersMove(board, move, color);
     if (!res.mustContinueJump || !res.lockedPiece) {
-      sequences.push({ steps: [move], resultingBoard: res.board });
+      if (move.captured) {
+        captureSeqs.push({ steps: [move], resultingBoard: res.board });
+      } else {
+        quietSeqs.push({ steps: [move], resultingBoard: res.board });
+      }
     } else {
-      expandChain(res.board, color, res.lockedPiece, [move], sequences);
+      expandChain(res.board, color, res.lockedPiece, [move], captureSeqs);
     }
   }
 
-  return sequences;
+  return captureSeqs.length > 0 && quietSeqs.length > 0
+    ? [...captureSeqs, ...quietSeqs]
+    : captureSeqs.length > 0
+    ? captureSeqs
+    : quietSeqs;
 }
 
 function expandChain(
@@ -479,14 +525,17 @@ function minimax(
   currentColor: PieceColor,
   forcedCapture: boolean
 ): number {
+  if (depth === 0) {
+    if (!hasAnyLegalMove(board, currentColor)) {
+      return currentColor === maximizingColor ? -9500 : 9500;
+    }
+    return evaluateBoardHeuristic(board, maximizingColor);
+  }
+
   const sequences = getTurnSequencesForColor(board, currentColor, forcedCapture);
 
   if (sequences.length === 0) {
     return currentColor === maximizingColor ? -9500 - depth : 9500 + depth;
-  }
-
-  if (depth === 0) {
-    return evaluateBoardHeuristic(board, maximizingColor);
   }
 
   const isMax = currentColor === maximizingColor;

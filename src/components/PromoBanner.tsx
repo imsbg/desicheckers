@@ -29,12 +29,12 @@ export const PromoBanner: React.FC<PromoBannerProps> = ({
   return (
     <aside
       aria-label="Sponsored Application"
-      className={`fixed bottom-2 left-2 right-2 sm:bottom-3 sm:left-4 sm:right-4 max-w-3xl mx-auto z-40 transition-all duration-300 rounded-2xl border shadow-2xl p-2 sm:p-3 backdrop-blur-xl ${
+      className={`fixed bottom-2 left-2 right-2 sm:bottom-3 sm:left-4 sm:right-4 max-w-3xl mx-auto z-40 rounded-2xl border shadow-md md:shadow-xl p-2 sm:p-3 ${
         amoledDark
-          ? 'bg-black/95 border-white/15 text-slate-100 shadow-black'
+          ? 'bg-black border-white/15 text-slate-100'
           : isDarkMode
-          ? 'bg-slate-900/95 border-slate-800/90 text-slate-100 shadow-teal-950/40'
-          : 'bg-white/95 border-slate-200 text-slate-900 shadow-slate-300/60'
+          ? 'bg-slate-900 border-slate-800 text-slate-100'
+          : 'bg-white border-slate-200 text-slate-900'
       }`}
     >
       <div className="flex items-center justify-between gap-2.5 sm:gap-3">

@@ -122,12 +122,12 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
   return (
     <header className="w-full sticky top-2.5 sm:top-3.5 z-30 px-2.5 sm:px-6 pt-2">
       <div
-        className={`w-full max-w-6xl mx-auto flex items-center justify-between gap-2 py-2 sm:py-2.5 px-3 sm:px-5 rounded-2xl sm:rounded-3xl border backdrop-blur-2xl backdrop-saturate-150 transition-all duration-200 ${
+        className={`w-full max-w-6xl mx-auto flex items-center justify-between gap-2 py-2 sm:py-2.5 px-3 sm:px-5 rounded-2xl sm:rounded-3xl border md:backdrop-blur-md transition-colors duration-200 ${
           amoledDark
-            ? 'border-white/15 bg-black/90 shadow-[0_16px_36px_-8px_rgba(0,0,0,0.9)]'
+            ? 'border-white/15 bg-black shadow-md'
             : isDarkMode
-            ? 'border-white/15 bg-slate-900/80 shadow-[0_16px_36px_-8px_rgba(0,0,0,0.55),inset_0_1px_1px_rgba(255,255,255,0.1)]'
-            : 'border-white/90 bg-white/80 shadow-[0_14px_34px_-8px_rgba(13,148,136,0.14),0_4px_12px_-2px_rgba(15,23,42,0.06),inset_0_1px_1px_rgba(255,255,255,0.95)]'
+            ? 'border-slate-800 bg-slate-900/95 shadow-md'
+            : 'border-slate-200/90 bg-white/95 shadow-sm md:shadow-md'
         }`}
       >
         {/* Left: Home link + Brand */}
@@ -446,12 +446,12 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
       {isMobileMenuOpen && (
         <div
           role="menu"
-          className={`md:hidden mt-2 max-w-6xl mx-auto p-3 rounded-2xl border backdrop-blur-2xl shadow-2xl space-y-2 animate-fade-in ${
+          className={`md:hidden mt-2 max-w-6xl mx-auto p-3 rounded-2xl border shadow-lg space-y-2 animate-fade-in ${
             amoledDark
-              ? 'bg-black/95 border-white/15 text-slate-100'
+              ? 'bg-black border-white/15 text-slate-100'
               : isDarkMode
-              ? 'bg-slate-900/95 border-slate-800 text-slate-100'
-              : 'bg-white/95 border-slate-200 text-slate-900'
+              ? 'bg-slate-900 border-slate-800 text-slate-100'
+              : 'bg-white border-slate-200 text-slate-900'
           }`}
         >
           <div className="grid grid-cols-2 gap-2">

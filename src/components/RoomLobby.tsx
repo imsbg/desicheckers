@@ -121,8 +121,8 @@ export const RoomLobby: React.FC<RoomLobbyProps> = ({
   const cardSurface = amoledDark
     ? 'bg-black border-white/15 shadow-none'
     : isDarkMode
-    ? 'bg-slate-900/80 border-slate-800 shadow-xl shadow-teal-950/25'
-    : 'bg-white border-slate-200/90 shadow-xl shadow-teal-900/5';
+    ? 'bg-slate-900 border-slate-800 shadow-sm md:shadow-xl'
+    : 'bg-white border-slate-200/90 shadow-sm md:shadow-xl';
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-5 animate-fade-in">
@@ -130,7 +130,7 @@ export const RoomLobby: React.FC<RoomLobbyProps> = ({
         {/* Left Side: Hero, Name, Play vs AI, 2-Player One Phone */}
         <div className="lg:col-span-6 flex flex-col">
           <div
-            className={`p-5 sm:p-7 rounded-3xl border space-y-4 transition-all duration-300 h-full flex flex-col justify-between ${cardSurface}`}
+            className={`p-5 sm:p-7 rounded-3xl border space-y-4 h-full flex flex-col justify-between ${cardSurface}`}
           >
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-2">

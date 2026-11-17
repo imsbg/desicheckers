@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import {
   Crown,
   RotateCcw,
@@ -58,8 +58,8 @@ interface CheckersBoardProps {
   isAIThinking?: boolean;
   canUndo?: boolean;
   rematchRequestedBy?: PieceColor | null;
-  totalElapsedSeconds: number;
-  currentRoundSeconds: number;
+  matchStartedAt: number;
+  roundStartedAt: number;
   currentRoundMoves: MoveRecord[];
   roundHistory: RoundRecord[];
   isDarkMode: boolean;
@@ -74,6 +74,183 @@ interface CheckersBoardProps {
 }
 
 const REACTION_EMOJIS = ['👏', '🔥', '😎', '🤝', '👑', '😮'];
+
+interface BoardTileProps {
+  row: number;
+  col: number;
+  dark: boolean;
+  pieceColor: PieceColor | null;
+  pieceIsKing: boolean;
+  isSelected: boolean;
+  targetKind: 'none' | 'move' | 'capture';
+  isMandatoryJumpPiece: boolean;
+  isLastMoveFrom: boolean;
+  isLastMoveTo: boolean;
+  isAnimDest: boolean;
+  animDx: number;
+  animDy: number;
+  canSelectPiece: boolean;
+  showRank: boolean;
+  showFile: boolean;
+  onTileClick: (row: number, col: number) => void;
+}
+
+const BoardTile: React.FC<BoardTileProps> = React.memo(
+  ({
+    row,
+    col,
+    dark,
+    pieceColor,
+    pieceIsKing,
+    isSelected,
+    targetKind,
+    isMandatoryJumpPiece,
+    isLastMoveFrom,
+    isLastMoveTo,
+    isAnimDest,
+    animDx,
+    animDy,
+    canSelectPiece,
+    showRank,
+    showFile,
+    onTileClick,
+  }) => {
+    const notation = `${String.fromCharCode(65 + col)}${BOARD_SIZE - row}`;
+    const squareBg = dark
+      ? isLastMoveTo
+        ? 'bg-teal-600'
+        : isLastMoveFrom
+        ? 'bg-teal-700'
+        : 'bg-teal-800'
+      : 'bg-amber-50';
+
+    const pieceLabel = pieceColor
+      ? `${pieceColor === 'red' ? 'Crimson' : 'Ivory'} ${pieceIsKing ? 'King' : 'piece'}`
+      : 'empty';
+
+    const moveHintLabel =
+      targetKind === 'capture'
+        ? ', capture jump available'
+        : targetKind === 'move'
+        ? ', valid move'
+        : '';
+
+    return (
+      <button
+        type="button"
+        data-testid={`square-${row}-${col}`}
+        data-notation={notation}
+        aria-label={`Square ${notation}, ${pieceLabel}${moveHintLabel}`}
+        onClick={() => onTileClick(row, col)}
+        className={`relative w-full h-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:z-10 ${squareBg} ${
+          isAnimDest ? 'z-20' : ''
+        } ${targetKind !== 'none' || canSelectPiece ? 'cursor-pointer' : 'cursor-default'}`}
+      >
+        {showRank && (
+          <span
+            aria-hidden="true"
+            className={`absolute top-0.5 left-1 text-[9px] font-mono font-bold pointer-events-none select-none ${
+              dark ? 'text-teal-200/50' : 'text-teal-900/45'
+            }`}
+          >
+            {BOARD_SIZE - row}
+          </span>
+        )}
+        {showFile && (
+          <span
+            aria-hidden="true"
+            className={`absolute bottom-0.5 right-1 text-[9px] font-mono font-bold pointer-events-none select-none ${
+              dark ? 'text-teal-200/50' : 'text-teal-900/45'
+            }`}
+          >
+            {String.fromCharCode(65 + col)}
+          </span>
+        )}
+
+        {/* Last Move Origin Dot Marker */}
+        {isLastMoveFrom && !pieceColor && (
+          <span
+            aria-hidden="true"
+            className="w-3 h-3 rounded-full border-2 border-dashed border-amber-300/80 bg-amber-300/20 pointer-events-none"
+          />
+        )}
+
+        {/* Last Move Destination Subtle Frame */}
+        {isLastMoveTo && !isSelected && (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0.5 rounded-lg ring-1 ring-amber-300/60 pointer-events-none"
+          />
+        )}
+
+        {isSelected && (
+          <span
+            aria-hidden="true"
+            className="absolute inset-0.5 rounded-lg ring-2 ring-amber-400 bg-amber-400/20 pointer-events-none"
+          />
+        )}
+
+        {targetKind !== 'none' && (
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none ${
+              targetKind === 'capture'
+                ? 'w-4/5 h-4/5 rounded-full border-4 border-amber-400 bg-amber-400/20'
+                : 'w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-300/85 ring-4 ring-emerald-400/30'
+            }`}
+          />
+        )}
+
+        {pieceColor && (
+          <div
+            data-animating={isAnimDest ? 'true' : undefined}
+            style={
+              isAnimDest
+                ? ({
+                    '--move-dx': animDx,
+                    '--move-dy': animDy,
+                  } as React.CSSProperties)
+                : undefined
+            }
+            className={`w-full h-full flex items-center justify-center pointer-events-none ${
+              isAnimDest ? 'animate-piece-move' : ''
+            }`}
+          >
+            <div
+              className={`relative w-[76%] h-[76%] rounded-full flex items-center justify-center shadow-sm sm:shadow-md ${
+                isAnimDest ? '' : 'transition-transform duration-100'
+              } ${
+                pieceColor === 'red'
+                  ? 'bg-rose-600 md:bg-gradient-to-br md:from-rose-500 md:via-rose-600 md:to-rose-800 border-2 border-rose-200/90'
+                  : 'bg-slate-100 md:bg-gradient-to-br md:from-white md:via-slate-100 md:to-slate-300 border-2 border-slate-500/85'
+              } ${isSelected ? 'scale-110 -translate-y-0.5' : ''} ${
+                isMandatoryJumpPiece ? 'animate-piece-pulse' : ''
+              }`}
+            >
+              <div
+                className={`w-[72%] h-[72%] rounded-full border flex items-center justify-center ${
+                  pieceColor === 'red'
+                    ? 'border-rose-300/45 bg-rose-700/25'
+                    : 'border-slate-400/50 bg-slate-200/40'
+                }`}
+              >
+                {pieceIsKing && (
+                  <Crown
+                    className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                      pieceColor === 'red' ? 'text-amber-300' : 'text-amber-500'
+                    }`}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </button>
+    );
+  }
+);
+
+BoardTile.displayName = 'BoardTile';
 
 export const CheckersBoard: React.FC<CheckersBoardProps> = ({
   mode,
@@ -96,8 +273,8 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
   isAIThinking = false,
   canUndo = false,
   rematchRequestedBy = null,
-  totalElapsedSeconds,
-  currentRoundSeconds,
+  matchStartedAt,
+  roundStartedAt,
   currentRoundMoves,
   roundHistory,
   isDarkMode,
@@ -152,6 +329,33 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
     return manualFlip;
   }, [mode, myColor, manualFlip, autoFlip2P, currentTurn]);
 
+  const prevMoveCountRef = useRef<number>(currentRoundMoves.length);
+  const prevFlippedRef = useRef<boolean>(isBoardFlipped);
+  const activeAnimRef = useRef<{
+    from: Coord;
+    to: Coord;
+    key: number;
+    flipped: boolean;
+  } | null>(null);
+
+  const moveCount = currentRoundMoves.length;
+  if (moveCount === 0 || moveCount < prevMoveCountRef.current) {
+    activeAnimRef.current = null;
+  } else if (moveCount > prevMoveCountRef.current && lastMove) {
+    activeAnimRef.current = {
+      from: lastMove.from,
+      to: lastMove.to,
+      key: moveCount,
+      flipped: isBoardFlipped,
+    };
+  } else if (prevFlippedRef.current !== isBoardFlipped) {
+    activeAnimRef.current = null;
+  }
+  prevMoveCountRef.current = moveCount;
+  prevFlippedRef.current = isBoardFlipped;
+
+  const currentAnim = activeAnimRef.current;
+
   const rowsOrder = useMemo(
     () => (isBoardFlipped ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7]),
     [isBoardFlipped]
@@ -161,40 +365,43 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
     [isBoardFlipped]
   );
 
-  const handleSquareClick = (row: number, col: number) => {
-    if (!canInteract) return;
+  const handleSquareClick = useCallback(
+    (row: number, col: number) => {
+      if (!canInteract) return;
 
-    const matchingMove = movesForSelected.find(
-      (m) => m.to.row === row && m.to.col === col
-    );
-    if (matchingMove) {
-      setSelectedSquare(null);
-      onMove(matchingMove);
-      return;
-    }
-
-    if (lockedPiece) {
-      sounds.playError();
-      return;
-    }
-
-    const piece = board[row][col];
-    if (piece && piece.color === currentTurn) {
-      const pieceMoves = legalMoves.filter(
-        (m) => m.from.row === row && m.from.col === col
+      const matchingMove = movesForSelected.find(
+        (m) => m.to.row === row && m.to.col === col
       );
-      if (pieceMoves.length > 0) {
-        sounds.playClick();
-        setSelectedSquare({ row, col });
-      } else {
-        sounds.playError();
+      if (matchingMove) {
         setSelectedSquare(null);
+        onMove(matchingMove);
+        return;
       }
-      return;
-    }
 
-    setSelectedSquare(null);
-  };
+      if (lockedPiece) {
+        sounds.playError();
+        return;
+      }
+
+      const piece = board[row][col];
+      if (piece && piece.color === currentTurn) {
+        const pieceMoves = legalMoves.filter(
+          (m) => m.from.row === row && m.from.col === col
+        );
+        if (pieceMoves.length > 0) {
+          sounds.playClick();
+          setSelectedSquare({ row, col });
+        } else {
+          sounds.playError();
+          setSelectedSquare(null);
+        }
+        return;
+      }
+
+      setSelectedSquare(null);
+    },
+    [canInteract, movesForSelected, onMove, lockedPiece, board, currentTurn, legalMoves]
+  );
 
   const handleCopyInvite = () => {
     if (!roomCode) return;
@@ -261,22 +468,23 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
     : 'bg-white/95 border-slate-200/90 shadow-lg shadow-teal-900/5';
 
   return (
-    <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-x-6 lg:gap-y-4 items-start animate-fade-in">
+    <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-x-6 lg:gap-y-4 items-start">
       {/* Left Column on Desktop (Order 2 on mobile): 8x8 Board + Controls + Reactions */}
       <div className="order-2 lg:order-none lg:col-start-1 lg:col-span-7 lg:row-start-1 lg:row-span-2 flex flex-col items-center space-y-3">
         <div
-          className={`w-full max-w-[520px] aspect-square p-2 sm:p-2.5 rounded-3xl border shadow-2xl transition-all ${
+          className={`w-full max-w-[520px] aspect-square p-2 sm:p-2.5 rounded-3xl border shadow-md md:shadow-xl ${
             amoledDark
-              ? 'bg-black border-white/20 shadow-black'
+              ? 'bg-black border-white/20'
               : isDarkMode
-              ? 'bg-slate-900 border-slate-700/80 shadow-black/60'
-              : 'bg-white border-slate-200 shadow-teal-950/10'
+              ? 'bg-slate-900 border-slate-700/80'
+              : 'bg-white border-slate-200'
           }`}
         >
           <div
             role="grid"
             aria-label="8 by 8 Checkers Board"
             data-testid="checkers-board"
+            style={{ contain: 'layout paint' }}
             className="w-full h-full grid grid-cols-8 grid-rows-8 rounded-2xl overflow-hidden border-2 border-teal-900/80 dark:border-teal-700/70"
           >
             {rowsOrder.map((row) =>
@@ -284,12 +492,16 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
                 const dark = isDarkSquare(row, col);
                 const piece = board[row][col];
                 const coordKey = `${row}-${col}`;
-                const notation = coordToNotation({ row, col });
                 const isSelected =
                   effectiveSelected?.row === row && effectiveSelected?.col === col;
                 const targetMove = movesForSelected.find(
                   (m) => m.to.row === row && m.to.col === col
                 );
+                const targetKind: 'none' | 'move' | 'capture' = targetMove
+                  ? targetMove.captured
+                    ? 'capture'
+                    : 'move'
+                  : 'none';
                 const isMandatoryJumpPiece =
                   canInteract && mandatoryJumpOrigins.has(coordKey);
                 const isLastMoveFrom =
@@ -297,125 +509,43 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
                 const isLastMoveTo =
                   lastMove?.to.row === row && lastMove?.to.col === col;
 
-                const squareBg = dark
-                  ? isLastMoveTo
-                    ? 'bg-teal-600'
-                    : isLastMoveFrom
-                    ? 'bg-teal-700'
-                    : 'bg-teal-800'
-                  : 'bg-amber-50';
-
-                const pieceLabel = piece
-                  ? `${piece.color === 'red' ? 'Crimson' : 'Ivory'} ${
-                      piece.isKing ? 'King' : 'piece'
-                    }`
-                  : 'empty';
-
-                const moveHintLabel = targetMove
-                  ? targetMove.captured
-                    ? ', capture jump available'
-                    : ', valid move'
-                  : '';
+                const isAnimDest = Boolean(
+                  piece &&
+                    currentAnim &&
+                    currentAnim.flipped === isBoardFlipped &&
+                    currentAnim.to.row === row &&
+                    currentAnim.to.col === col
+                );
+                const animDx = isAnimDest
+                  ? (isBoardFlipped ? 7 - currentAnim!.from.col : currentAnim!.from.col) -
+                    (isBoardFlipped ? 7 - currentAnim!.to.col : currentAnim!.to.col)
+                  : 0;
+                const animDy = isAnimDest
+                  ? (isBoardFlipped ? 7 - currentAnim!.from.row : currentAnim!.from.row) -
+                    (isBoardFlipped ? 7 - currentAnim!.to.row : currentAnim!.to.row)
+                  : 0;
 
                 return (
-                  <button
+                  <BoardTile
                     key={coordKey}
-                    type="button"
-                    data-testid={`square-${row}-${col}`}
-                    data-notation={notation}
-                    aria-label={`Square ${notation}, ${pieceLabel}${moveHintLabel}`}
-                    onClick={() => handleSquareClick(row, col)}
-                    className={`relative w-full h-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:z-10 transition-colors ${squareBg} ${
-                      targetMove || (canInteract && piece?.color === currentTurn)
-                        ? 'cursor-pointer'
-                        : 'cursor-default'
-                    }`}
-                  >
-                    {col === colsOrder[0] && (
-                      <span
-                        aria-hidden="true"
-                        className={`absolute top-0.5 left-1 text-[9px] font-mono font-bold pointer-events-none select-none ${
-                          dark ? 'text-teal-200/50' : 'text-teal-900/45'
-                        }`}
-                      >
-                        {BOARD_SIZE - row}
-                      </span>
-                    )}
-                    {row === rowsOrder[7] && (
-                      <span
-                        aria-hidden="true"
-                        className={`absolute bottom-0.5 right-1 text-[9px] font-mono font-bold pointer-events-none select-none ${
-                          dark ? 'text-teal-200/50' : 'text-teal-900/45'
-                        }`}
-                      >
-                        {String.fromCharCode(65 + col)}
-                      </span>
-                    )}
-
-                    {/* Last Move Origin Dot Marker */}
-                    {isLastMoveFrom && !piece && (
-                      <span
-                        aria-hidden="true"
-                        className="w-3 h-3 rounded-full border-2 border-dashed border-amber-300/80 bg-amber-300/20 pointer-events-none"
-                      />
-                    )}
-
-                    {/* Last Move Destination Subtle Frame */}
-                    {isLastMoveTo && !isSelected && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-0.5 rounded-lg ring-1 ring-amber-300/60 pointer-events-none"
-                      />
-                    )}
-
-                    {isSelected && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-0.5 rounded-lg ring-2 ring-amber-400 bg-amber-400/20 pointer-events-none"
-                      />
-                    )}
-
-                    {targetMove && (
-                      <span
-                        aria-hidden="true"
-                        className={`pointer-events-none transition-transform ${
-                          targetMove.captured
-                            ? 'w-4/5 h-4/5 rounded-full border-4 border-amber-400 bg-amber-400/20 animate-pulse'
-                            : 'w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-300/85 ring-4 ring-emerald-400/30 shadow'
-                        }`}
-                      />
-                    )}
-
-                    {piece && (
-                      <div
-                        className={`relative w-[76%] h-[76%] rounded-full transition-transform duration-150 flex items-center justify-center shadow-[0_4px_8px_rgba(0,0,0,0.42),inset_0_2px_3px_rgba(255,255,255,0.35)] ${
-                          piece.color === 'red'
-                            ? 'bg-gradient-to-br from-rose-500 via-rose-600 to-rose-800 border-2 border-rose-200/85'
-                            : 'bg-gradient-to-br from-white via-slate-100 to-slate-300 border-2 border-slate-500/85'
-                        } ${isSelected ? 'scale-110 -translate-y-0.5' : ''} ${
-                          isMandatoryJumpPiece ? 'animate-piece-pulse' : ''
-                        }`}
-                      >
-                        <div
-                          className={`w-[72%] h-[72%] rounded-full border flex items-center justify-center ${
-                            piece.color === 'red'
-                              ? 'border-rose-300/45 bg-rose-700/25'
-                              : 'border-slate-400/50 bg-slate-200/40'
-                          }`}
-                        >
-                          {piece.isKing && (
-                            <Crown
-                              className={`w-4 h-4 sm:w-5 sm:h-5 ${
-                                piece.color === 'red'
-                                  ? 'text-amber-300 drop-shadow'
-                                  : 'text-amber-500 drop-shadow-sm'
-                              }`}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </button>
+                    row={row}
+                    col={col}
+                    dark={dark}
+                    pieceColor={piece ? piece.color : null}
+                    pieceIsKing={piece ? piece.isKing : false}
+                    isSelected={isSelected}
+                    targetKind={targetKind}
+                    isMandatoryJumpPiece={isMandatoryJumpPiece}
+                    isLastMoveFrom={isLastMoveFrom}
+                    isLastMoveTo={isLastMoveTo}
+                    isAnimDest={isAnimDest}
+                    animDx={animDx}
+                    animDy={animDy}
+                    canSelectPiece={Boolean(canInteract && piece?.color === currentTurn)}
+                    showRank={col === colsOrder[0]}
+                    showFile={row === rowsOrder[7]}
+                    onTileClick={handleSquareClick}
+                  />
                 );
               })
             )}
@@ -831,8 +961,9 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
       <div className="order-3 lg:order-none lg:col-start-8 lg:col-span-5 lg:row-start-2">
         <GameDataFooter
           board={board}
-          totalElapsedSeconds={totalElapsedSeconds}
-          currentRoundSeconds={currentRoundSeconds}
+          matchStartedAt={matchStartedAt}
+          roundStartedAt={roundStartedAt}
+          isRoundPlaying={status === 'playing'}
           currentRoundMoves={currentRoundMoves}
           roundHistory={roundHistory}
           playerNames={playerNames}

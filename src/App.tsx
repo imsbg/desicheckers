@@ -144,9 +144,9 @@ export default function App() {
   const [hostLeftRoom, setHostLeftRoom] = useState<boolean>(false);
   const [inviteRoomCode, setInviteRoomCode] = useState<string | null>(null);
 
-  // Timers
-  const [totalElapsedSeconds, setTotalElapsedSeconds] = useState<number>(0);
-  const [currentRoundSeconds, setCurrentRoundSeconds] = useState<number>(0);
+  // Timers (epoch timestamps so App never re-renders every second)
+  const [matchStartedAt, setMatchStartedAt] = useState<number>(() => Date.now());
+  const [roundStartedAt, setRoundStartedAt] = useState<number>(() => Date.now());
 
   // Modals & Toasts
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
@@ -265,19 +265,6 @@ export default function App() {
     };
   }, []);
 
-  // Match & Round elapsed timers
-  useEffect(() => {
-    if (!gameMode) return;
-    const interval = setInterval(() => {
-      setTotalElapsedSeconds((tSec) => tSec + 1);
-      const status = gameMode === 'online' ? onlineState.status : localStatus;
-      if (status === 'playing') {
-        setCurrentRoundSeconds((rSec) => rSec + 1);
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [gameMode, localStatus, onlineState.status]);
-
   // Trigger confetti & win sound once when round completes
   useEffect(() => {
     if (!gameMode) return;
@@ -379,8 +366,9 @@ export default function App() {
     setLocalMoves([]);
     setLocalHistory([]);
     setUndoStack([]);
-    setTotalElapsedSeconds(0);
-    setCurrentRoundSeconds(0);
+    const now = Date.now();
+    setMatchStartedAt(now);
+    setRoundStartedAt(now);
     setIsAIThinking(false);
     prevOutcomeRoundRef.current = 0;
   };
@@ -497,7 +485,7 @@ export default function App() {
             winnerName: winName,
             reason: outcome.reason,
             movesCount: nextMoves.length,
-            durationSeconds: Math.max(1, currentRoundSeconds),
+            durationSeconds: Math.max(1, Math.round((Date.now() - roundStartedAt) / 1000)),
           },
         ]);
       }
@@ -508,7 +496,7 @@ export default function App() {
       localPlayerNames.red,
       localPlayerNames.ivory,
       localRound,
-      currentRoundSeconds,
+      roundStartedAt,
       t.drawText,
     ]
   );
@@ -521,7 +509,7 @@ export default function App() {
     }
 
     setIsAIThinking(true);
-    const delay = localLockedPiece ? 380 : 540;
+    const delay = localLockedPiece ? 180 : 230;
     const difficulty = tierToDifficulty(localMatchTier);
 
     aiTimerRef.current = setTimeout(() => {
@@ -630,7 +618,7 @@ export default function App() {
         winnerName,
         reason,
         movesCount: localMoves.length,
-        durationSeconds: Math.max(1, currentRoundSeconds),
+        durationSeconds: Math.max(1, Math.round((Date.now() - roundStartedAt) / 1000)),
       },
     ]);
   };
@@ -649,7 +637,7 @@ export default function App() {
     setLocalLastMove(null);
     setLocalMoves([]);
     setUndoStack([]);
-    setCurrentRoundSeconds(0);
+    setRoundStartedAt(Date.now());
     setIsAIThinking(false);
     prevOutcomeRoundRef.current = 0;
   };
@@ -667,12 +655,13 @@ export default function App() {
     roomRef.current?.destroy();
 
     const activeName = (customName ?? playerName).trim() || t.player1Default;
+    const now = Date.now();
     setCurrentRoomCode(roomCode);
     setMyRole(role);
     setGameMode('online');
     setHostLeftRoom(false);
-    setTotalElapsedSeconds(0);
-    setCurrentRoundSeconds(0);
+    setMatchStartedAt(now);
+    setRoundStartedAt(now);
     prevOutcomeRoundRef.current = 0;
 
     const room = new WebRTCCheckersRoom(
@@ -683,7 +672,7 @@ export default function App() {
         onStateChange: (nextState) => {
           setOnlineState((prev) => {
             if (nextState.round !== prev.round) {
-              setCurrentRoundSeconds(0);
+              setRoundStartedAt(Date.now());
             }
             if (nextState.currentRoundMoves.length > prev.currentRoundMoves.length) {
               const latest =
@@ -747,12 +736,12 @@ export default function App() {
   return (
     <div
       data-amoled={amoledDark ? 'true' : 'false'}
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${
+      className={`min-h-screen flex flex-col ${
         amoledDark
           ? 'bg-black text-slate-100'
           : isDarkMode
-          ? 'bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950/35 text-slate-100'
-          : 'bg-gradient-to-br from-slate-50 via-teal-50/45 to-amber-50/45 text-slate-900'
+          ? 'bg-slate-950 md:bg-gradient-to-br md:from-slate-950 md:via-slate-900 md:to-teal-950/35 text-slate-100'
+          : 'bg-slate-50 md:bg-gradient-to-br md:from-slate-50 md:via-teal-50/45 md:to-amber-50/45 text-slate-900'
       }`}
     >
       {/* Sticky Floating Glassmorphic Header */}
@@ -853,8 +842,8 @@ export default function App() {
             roomCode={currentRoomCode}
             isSpectator={myRole === 'spectator'}
             rematchRequestedBy={onlineState.rematchRequestedBy}
-            totalElapsedSeconds={totalElapsedSeconds}
-            currentRoundSeconds={currentRoundSeconds}
+            matchStartedAt={matchStartedAt}
+            roundStartedAt={roundStartedAt}
             currentRoundMoves={onlineState.currentRoundMoves}
             roundHistory={onlineState.roundHistory}
             isDarkMode={isDarkMode}
@@ -885,8 +874,8 @@ export default function App() {
             round={localRound}
             isAIThinking={isAIThinking}
             canUndo={undoStack.length > 0}
-            totalElapsedSeconds={totalElapsedSeconds}
-            currentRoundSeconds={currentRoundSeconds}
+            matchStartedAt={matchStartedAt}
+            roundStartedAt={roundStartedAt}
             currentRoundMoves={localMoves}
             roundHistory={localHistory}
             isDarkMode={isDarkMode}
@@ -986,10 +975,10 @@ export default function App() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="leave-confirm-title"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-fade-in"
         >
           <div
-            className={`w-full max-w-sm rounded-3xl border shadow-2xl p-6 text-center space-y-4 animate-pop-in ${
+            className={`w-full max-w-sm rounded-3xl border shadow-xl p-6 text-center space-y-4 animate-pop-in ${
               amoledDark
                 ? 'bg-black border-white/15 text-slate-100'
                 : isDarkMode
@@ -1045,7 +1034,7 @@ export default function App() {
       {toastMessage && (
         <div
           role="status"
-          className={`fixed top-16 right-4 sm:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl border shadow-2xl text-xs font-semibold animate-pop-in ${
+          className={`fixed top-16 right-4 sm:right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-2xl border shadow-lg text-xs font-semibold animate-pop-in ${
             amoledDark
               ? 'bg-black text-white border-white/20'
               : 'bg-slate-900 text-white border-slate-700'

@@ -29,12 +29,8 @@
 
 @keyframes pop-in {
   0% {
-    transform: scale(0.86);
+    transform: scale(0.92);
     opacity: 0;
-  }
-  70% {
-    transform: scale(1.03);
-    opacity: 1;
   }
   100% {
     transform: scale(1);
@@ -44,11 +40,11 @@
 
 @keyframes float-up {
   0% {
-    transform: translateY(0) scale(0.85);
+    transform: translate3d(0, 0, 0) scale(0.9);
     opacity: 1;
   }
   100% {
-    transform: translateY(-95px) scale(1.25);
+    transform: translate3d(0, -85px, 0) scale(1.18);
     opacity: 0;
   }
 }
@@ -56,34 +52,51 @@
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+  }
+}
+
+@keyframes piece-glide {
+  0% {
+    transform: translate3d(calc(var(--move-dx, 0) * 100%), calc(var(--move-dy, 0) * 100%), 0)
+      scale(1.06);
+  }
+  55% {
+    transform: translate3d(calc(var(--move-dx, 0) * 38%), calc(var(--move-dy, 0) * 38%), 0)
+      scale(1.13);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes piece-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.75);
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.35);
+    transform: scale(1.06);
   }
 }
 
 .animate-pop-in {
-  animation: pop-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: pop-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-float-up {
-  animation: float-up 1.5s ease-out forwards;
+  animation: float-up 1.4s ease-out forwards;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fade-in 0.14s ease-out forwards;
+}
+
+.animate-piece-move {
+  animation: piece-glide 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform;
 }
 
 .animate-piece-pulse {
