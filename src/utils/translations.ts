@@ -272,7 +272,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     howToPlayTitle: 'Game Info & Rules',
     rule1Title: '1. Movement',
     rule1Desc:
-      'Pieces move diagonally forward one square onto dark teal squares. Crimson moves first.',
+      'Pieces move diagonally forward one square onto dark teal squares. After each win, loss, or draw, the opponent opens the next round.',
     rule2Title: '2. Capturing & Multi-Jumps',
     rule2Desc:
       'Jump diagonally over an adjacent opponent piece into an empty square behind it to capture it. Multi-jump chains continue automatically with the same piece.',
@@ -433,7 +433,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     howToPlayTitle: 'ଖେଳ ସୂଚନା ଓ ନିୟମ',
     rule1Title: '୧. ଗୋଟି ଚାଳନା',
     rule1Desc:
-      'ଗୋଟିଗୁଡ଼ିକ ଗାଢ଼ ସବୁଜ ଘରେ ତେରଛା ଭାବେ ଆଗକୁ ଗୋଟିଏ ଘର ଚାଲେ। ଲାଲ୍ ଗୋଟି ପ୍ରଥମେ ଖେଳ ଆରମ୍ଭ କରେ।',
+      'ଗୋଟିଗୁଡ଼ିକ ଗାଢ଼ ସବୁଜ ଘରେ ତେରଛା ଭାବେ ଆଗକୁ ଗୋଟିଏ ଘର ଚାଲେ। ପ୍ରତି ବିଜୟ, ପରାଜୟ କିମ୍ବା ଡ୍ର ପରେ ପରବର୍ତ୍ତୀ ରାଉଣ୍ଡରେ ବିପକ୍ଷ ଖେଳାଳି ପ୍ରଥମେ ଚାଲ୍ ଖେଳନ୍ତି।',
     rule2Title: '୨. କାଟିବା ଓ ଏକାଧିକ ଜମ୍ପ୍',
     rule2Desc:
       'ବିପକ୍ଷ ଗୋଟି ଉପରେ ତେରଛା ଭାବେ ଡେଇଁ ଖାଲି ଘରେ ବସିଲେ ସେହି ଗୋଟି କଟିଯାଏ। ଆଗକୁ ଆଉ କାଟିବାର ଥିଲେ ଏକାଧିକ ଜମ୍ପ୍ ଜାରି ରହେ।',

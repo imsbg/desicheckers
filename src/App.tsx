@@ -19,11 +19,14 @@ import {
   applyCheckersMove,
   chooseBestAIMove,
   cloneBoard,
+  consumePersistedAISessionStarter,
   coordToNotation,
   createInitialBoard,
   evaluateGameOutcome,
   getLegalMoves,
   getMaxMovesForTier,
+  getNextRoundStarter,
+  syncPersistedAISessionStarter,
   tierToDifficulty,
 } from './game/checkers';
 import {
@@ -119,6 +122,7 @@ export default function App() {
   // Local (AI & 2P) State
   const [localBoard, setLocalBoard] = useState<Board>(() => createInitialBoard());
   const [localTurn, setLocalTurn] = useState<PieceColor>('red');
+  const [localRoundStarter, setLocalRoundStarter] = useState<PieceColor>('red');
   const [localLockedPiece, setLocalLockedPiece] = useState<Coord | null>(null);
   const [localStatus, setLocalStatus] = useState<GameStatus>('playing');
   const [localWinner, setLocalWinner] = useState<PieceColor | 'draw' | null>(null);
@@ -353,8 +357,15 @@ export default function App() {
     setLocalMatchTier(mode === 'local-2p' ? 'casual' : tier);
     setForcedCapture(forced);
     setGameMode(mode);
+    const openingTurn: PieceColor =
+      mode === 'ai'
+        ? consumePersistedAISessionStarter(
+            typeof window !== 'undefined' ? window.localStorage : null
+          )
+        : 'red';
     setLocalBoard(createInitialBoard());
-    setLocalTurn('red');
+    setLocalTurn(openingTurn);
+    setLocalRoundStarter(openingTurn);
     setLocalLockedPiece(null);
     setLocalStatus('playing');
     setLocalWinner(null);
@@ -626,8 +637,16 @@ export default function App() {
   const handleLocalNewRound = () => {
     if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
     const nextRound = localRound + 1;
+    const nextStarter = getNextRoundStarter(localRoundStarter, localStatus);
+    if (gameMode === 'ai') {
+      syncPersistedAISessionStarter(
+        nextStarter,
+        typeof window !== 'undefined' ? window.localStorage : null
+      );
+    }
     setLocalBoard(createInitialBoard());
-    setLocalTurn('red');
+    setLocalTurn(nextStarter);
+    setLocalRoundStarter(nextStarter);
     setLocalLockedPiece(null);
     setLocalStatus('playing');
     setLocalWinner(null);

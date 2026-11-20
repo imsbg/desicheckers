@@ -669,3 +669,62 @@ export function formatDuration(totalSeconds: number): string {
   const secs = safe % 60;
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
+
+export function getOppositeColor(color: PieceColor): PieceColor {
+  return color === 'red' ? 'ivory' : 'red';
+}
+
+/**
+ * After a round ends (won or drawn), the opponent starts the next round.
+ * Mid-game restarts preserve the current round's starting player.
+ */
+export function getNextRoundStarter(
+  currentStarter: PieceColor,
+  roundStatus: GameStatus
+): PieceColor {
+  if (roundStatus === 'won' || roundStatus === 'draw') {
+    return getOppositeColor(currentStarter);
+  }
+  return currentStarter;
+}
+
+export interface KeyValueStorageLike {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+}
+
+export const AI_NEXT_STARTER_STORAGE_KEY = 'sb_checkers_ai_next_starter';
+
+/**
+ * Reads who should start a newly opened Solo vs AI session ('red' on 1st play,
+ * then 'ivory' on the next room open, alternating across room close/reopen).
+ */
+export function consumePersistedAISessionStarter(
+  storage: KeyValueStorageLike | null | undefined
+): PieceColor {
+  let starter: PieceColor = 'red';
+  if (!storage) return starter;
+  try {
+    const saved = storage.getItem(AI_NEXT_STARTER_STORAGE_KEY);
+    starter = saved === 'ivory' ? 'ivory' : 'red';
+    storage.setItem(AI_NEXT_STARTER_STORAGE_KEY, getOppositeColor(starter));
+  } catch {
+    // ignore storage errors
+  }
+  return starter;
+}
+
+/**
+ * Keeps the persisted next-session AI starter aligned when rounds advance in-session.
+ */
+export function syncPersistedAISessionStarter(
+  currentStarter: PieceColor,
+  storage: KeyValueStorageLike | null | undefined
+): void {
+  if (!storage) return;
+  try {
+    storage.setItem(AI_NEXT_STARTER_STORAGE_KEY, getOppositeColor(currentStarter));
+  } catch {
+    // ignore storage errors
+  }
+}

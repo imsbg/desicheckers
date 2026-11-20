@@ -18,6 +18,7 @@ import {
   evaluateGameOutcome,
   getLegalMoves,
   getMaxMovesForTier,
+  getOppositeColor,
 } from '../game/checkers';
 import { liveMatchRegistry } from './liveLobby';
 
@@ -33,6 +34,7 @@ export interface PlayerInfo {
 export interface OnlineGameState {
   board: Board;
   currentTurn: PieceColor;
+  startingTurn: PieceColor;
   lockedPiece: Coord | null;
   status: GameStatus;
   winner: PieceColor | 'draw' | null;
@@ -106,6 +108,7 @@ export function createInitialOnlineState(
   return {
     board: createInitialBoard(),
     currentTurn: 'red',
+    startingTurn: 'red',
     lockedPiece: null,
     status: 'waiting',
     winner: null,
@@ -674,10 +677,12 @@ export class WebRTCCheckersRoom {
 
   private startNewHostRound(): void {
     const nextRound = this.state.round + 1;
+    const nextStarter = getOppositeColor(this.state.startingTurn || 'red');
     this.state = {
       ...this.state,
       board: createInitialBoard(),
-      currentTurn: nextRound % 2 === 1 ? 'red' : 'ivory',
+      currentTurn: nextStarter,
+      startingTurn: nextStarter,
       lockedPiece: null,
       status: this.state.players.ivory ? 'playing' : 'waiting',
       winner: null,

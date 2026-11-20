@@ -11,6 +11,11 @@ import {
   isValidRoomCode,
   normalizeRoomCode,
   formatDuration,
+  getOppositeColor,
+  getNextRoundStarter,
+  consumePersistedAISessionStarter,
+  syncPersistedAISessionStarter,
+  AI_NEXT_STARTER_STORAGE_KEY,
   Board,
 } from './checkers';
 
@@ -144,5 +149,45 @@ test('match tier move limits and tournament 40-move evaluation', () => {
   const finished = evaluateGameOutcome(board, 'ivory', 0, true, 40, 40);
   assert.equal(finished.status, 'won');
   assert.equal(finished.winner, 'red');
+});
+
+test('opponent starts next round after win, loss, or draw', () => {
+  assert.equal(getOppositeColor('red'), 'ivory');
+  assert.equal(getOppositeColor('ivory'), 'red');
+
+  // After win / loss / draw, opposite side opens next round
+  assert.equal(getNextRoundStarter('red', 'won'), 'ivory');
+  assert.equal(getNextRoundStarter('red', 'draw'), 'ivory');
+  assert.equal(getNextRoundStarter('ivory', 'won'), 'red');
+  assert.equal(getNextRoundStarter('ivory', 'draw'), 'red');
+
+  // Mid-round restart keeps the current round starter
+  assert.equal(getNextRoundStarter('red', 'playing'), 'red');
+  assert.equal(getNextRoundStarter('ivory', 'playing'), 'ivory');
+});
+
+test('AI session starter alternates across room close and reopen', () => {
+  const map = new Map<string, string>();
+  const mockStorage = {
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      map.set(k, v);
+    },
+  };
+
+  // 1st play: player starts
+  assert.equal(consumePersistedAISessionStarter(mockStorage), 'red');
+  assert.equal(map.get(AI_NEXT_STARTER_STORAGE_KEY), 'ivory');
+
+  // Room closed then opened: AI starts 1st
+  assert.equal(consumePersistedAISessionStarter(mockStorage), 'ivory');
+  assert.equal(map.get(AI_NEXT_STARTER_STORAGE_KEY), 'red');
+
+  // Next open: player starts again
+  assert.equal(consumePersistedAISessionStarter(mockStorage), 'red');
+
+  // If a rematch inside the session had AI ('ivory') start, closing & reopening gives player ('red') next
+  syncPersistedAISessionStarter('ivory', mockStorage);
+  assert.equal(consumePersistedAISessionStarter(mockStorage), 'red');
 });
 
