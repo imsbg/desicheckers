@@ -751,10 +751,12 @@ export default function App() {
     myRole === 'host' ? 'red' : myRole === 'guest' ? 'ivory' : null;
 
   const amoledDark = isDarkMode && isFullscreen;
+  const isInFocusedFullscreen = isFullscreen && gameMode !== null && !hostLeftRoom;
 
   return (
     <div
       data-amoled={amoledDark ? 'true' : 'false'}
+      data-focused-fullscreen={isInFocusedFullscreen ? 'true' : 'false'}
       className={`min-h-screen flex flex-col ${
         amoledDark
           ? 'bg-black text-slate-100'
@@ -763,37 +765,45 @@ export default function App() {
           : 'bg-slate-50 md:bg-gradient-to-br md:from-slate-50 md:via-teal-50/45 md:to-amber-50/45 text-slate-900'
       }`}
     >
-      {/* Sticky Floating Glassmorphic Header */}
-      <RoomHeader
-        roomCode={currentRoomCode}
-        connectionStatus={connectionStatus}
-        isInGame={gameMode !== null}
-        isDarkMode={isDarkMode}
-        isFullscreen={isFullscreen}
-        onToggleTheme={() => setIsDarkMode((d) => !d)}
-        onToggleFullscreen={handleToggleFullscreen}
-        soundEnabled={soundEnabled}
-        onToggleSound={handleToggleSound}
-        currentLanguage={currentLanguage}
-        onToggleLanguage={handleToggleLanguage}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onOpenQr={() => setIsQrOpen(true)}
-        onOpenHowToPlay={() => setIsHowToPlayOpen(true)}
-        onOpenShareFriend={() => setIsShareFriendOpen(true)}
-        onOpenTerms={() => setCurrentPage('terms')}
-        onLogoClick={() => {
-          if (gameMode) {
-            setIsLeaveConfirmOpen(true);
-          } else {
-            setCurrentPage('home');
-          }
-        }}
-        onLeaveGame={() => setIsLeaveConfirmOpen(true)}
-        t={t}
-      />
+      {/* Sticky Floating Glassmorphic Header (hidden during focused in-game Fullscreen) */}
+      {!isInFocusedFullscreen && (
+        <RoomHeader
+          roomCode={currentRoomCode}
+          connectionStatus={connectionStatus}
+          isInGame={gameMode !== null}
+          isDarkMode={isDarkMode}
+          isFullscreen={isFullscreen}
+          onToggleTheme={() => setIsDarkMode((d) => !d)}
+          onToggleFullscreen={handleToggleFullscreen}
+          soundEnabled={soundEnabled}
+          onToggleSound={handleToggleSound}
+          currentLanguage={currentLanguage}
+          onToggleLanguage={handleToggleLanguage}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenQr={() => setIsQrOpen(true)}
+          onOpenHowToPlay={() => setIsHowToPlayOpen(true)}
+          onOpenShareFriend={() => setIsShareFriendOpen(true)}
+          onOpenTerms={() => setCurrentPage('terms')}
+          onLogoClick={() => {
+            if (gameMode) {
+              setIsLeaveConfirmOpen(true);
+            } else {
+              setCurrentPage('home');
+            }
+          }}
+          onLeaveGame={() => setIsLeaveConfirmOpen(true)}
+          t={t}
+        />
+      )}
 
       {/* Main Content */}
-      <main className="flex-1 w-full px-3 sm:px-6 pt-5 pb-24 sm:pb-28">
+      <main
+        className={`flex-1 w-full ${
+          isInFocusedFullscreen
+            ? 'px-2.5 sm:px-6 py-3 sm:py-5 lg:flex lg:items-center'
+            : 'px-3 sm:px-6 pt-5 pb-24 sm:pb-28'
+        }`}
+      >
         {currentPage === 'terms' ? (
           <TermsPage
             isDarkMode={isDarkMode}
@@ -909,13 +919,15 @@ export default function App() {
         )}
       </main>
 
-      {/* Sticky Bottom Sponsored App Card */}
-      <PromoBanner
-        isDarkMode={isDarkMode}
-        isFullscreen={isFullscreen}
-        isOdia={currentLanguage === 'or'}
-        t={t}
-      />
+      {/* Sticky Bottom Sponsored App Card (hidden during focused in-game Fullscreen) */}
+      {!isInFocusedFullscreen && (
+        <PromoBanner
+          isDarkMode={isDarkMode}
+          isFullscreen={isFullscreen}
+          isOdia={currentLanguage === 'or'}
+          t={t}
+        />
+      )}
 
       {/* Floating Emoji Reactions */}
       <ReactionFloater reactions={reactions} />

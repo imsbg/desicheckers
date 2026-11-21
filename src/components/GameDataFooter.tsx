@@ -135,6 +135,27 @@ export const GameDataFooter: React.FC<GameDataFooterProps> = React.memo(
       ? 'bg-slate-900/80'
       : 'bg-white border border-slate-200/70';
 
+    if (isFullscreen) {
+      return (
+        <section
+          aria-label="Match and Round Timers"
+          data-testid="fullscreen-timers"
+          className={`w-full rounded-2xl border p-2.5 sm:p-3 ${cardSurface}`}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            <LiveMatchClocks
+              matchStartedAt={matchStartedAt}
+              roundStartedAt={roundStartedAt}
+              isRoundPlaying={isRoundPlaying}
+              tileSurface={tileSurface}
+              matchTimeLabel={t.matchTime}
+              roundTimeLabel={t.roundTime}
+            />
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section
         aria-label="Match Analytics and Move Log"

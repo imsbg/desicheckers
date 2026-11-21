@@ -167,11 +167,12 @@ const BoardTile: React.FC<BoardTileProps> = React.memo(
           </span>
         )}
 
-        {/* Last Move Origin Dot Marker */}
+        {/* Last Move Origin Subtle Dashed Frame */}
         {isLastMoveFrom && !pieceColor && (
           <span
             aria-hidden="true"
-            className="w-3 h-3 rounded-full border-2 border-dashed border-amber-300/80 bg-amber-300/20 pointer-events-none"
+            data-testid={`last-from-${row}-${col}`}
+            className="absolute inset-1 rounded-lg border border-dashed border-amber-300/60 pointer-events-none"
           />
         )}
 
@@ -193,12 +194,20 @@ const BoardTile: React.FC<BoardTileProps> = React.memo(
         {targetKind !== 'none' && (
           <span
             aria-hidden="true"
-            className={`pointer-events-none ${
+            data-testid={`target-${row}-${col}`}
+            className={`absolute pointer-events-none flex items-center justify-center ${
               targetKind === 'capture'
                 ? 'w-4/5 h-4/5 rounded-full border-4 border-amber-400 bg-amber-400/20'
                 : 'w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-300/85 ring-4 ring-emerald-400/30'
             }`}
-          />
+          >
+            {targetKind === 'capture' && (
+              <span
+                data-testid={`capture-dot-${row}-${col}`}
+                className="w-3 h-3 rounded-full border-2 border-dashed border-amber-300 bg-amber-300/25"
+              />
+            )}
+          </span>
         )}
 
         {pieceColor && (
@@ -604,13 +613,16 @@ export const CheckersBoard: React.FC<CheckersBoardProps> = ({
 
             <button
               type="button"
+              data-testid="board-fullscreen-btn"
               onClick={() => {
                 sounds.playClick();
                 onToggleFullscreen();
               }}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                 isFullscreen
-                  ? 'border-teal-500 bg-teal-500/15 text-teal-400'
+                  ? amoledDark
+                    ? 'border-teal-400/60 bg-teal-500/20 text-teal-300 hover:bg-teal-500/30'
+                    : 'border-teal-500 bg-teal-500/15 text-teal-700 dark:text-teal-300 hover:bg-teal-500/25'
                   : isDarkMode
                   ? 'border-slate-700 bg-slate-800 hover:bg-slate-700'
                   : 'border-slate-200 bg-slate-50 hover:bg-slate-100'
